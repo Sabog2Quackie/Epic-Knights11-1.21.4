@@ -1,7 +1,7 @@
 # Epic-Knights Fabric 1.21.4 Port - Status Report
 
 ## Summary
-A significant port of the Epic-Knights mod to Fabric Minecraft 1.21.4 has been completed, with all compilation errors resolved. The project now compiles successfully, with core item registration APIs successfully migrated. Advanced features (rendering, complex recipes) remain disabled to create a working foundation.
+A significant port of the Epic-Knights mod to Fabric Minecraft 1.21.4 has been completed. The project now compiles successfully with all compilation errors resolved. Core item registration APIs have been migrated, with advanced features (rendering, complex recipes) stubbed out to create a working foundation.
 
 ## Completed Work ✅
 
@@ -35,11 +35,11 @@ A significant port of the Epic-Knights mod to Fabric Minecraft 1.21.4 has been c
 
 ## Remaining Issues (0 Compilation Errors)
 
-### Features Not Yet Ported
-- **Rendering system** - All armor/shield/decoration model rendering
+### Features Not Yet Implemented (Stubbed for Compilation)
+- **Rendering system** - All armor/shield/decoration model rendering (classes exist as stubs)
 - **Data components** - Banner patterns, heraldry system rendering
-- **Custom recipes** - Heraldry decorating, armor decoration application
-- **Horse armor** -  AnimalArmorItem compatibility
+- **Custom recipes** - Heraldry decorating, armor decoration application (recipe classes exist as stubs)
+- **Horse armor** - AnimalArmorItem compatibility
 
 ## What Works
 ✓ Item registration and basic item properties

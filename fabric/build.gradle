@@ -48,8 +48,8 @@ processResources {
     def authorsList      = rawAuthors.split(",")*.trim().findAll { it }
     def contributorsList = rawContributors.split(",")*.trim().findAll { it }
 
-    def authorsArray      = JsonOutput.toJson(authorsList)
-    def contributorsArray = JsonOutput.toJson(contributorsList)
+    def authorsArray      = authorsList.join("\", \"")
+    def contributorsArray = contributorsList.join("\", \"")
 
     def expandProps = [
             "mod_id"                    : (project.findProperty("mod_id") ?: "").toString(),
@@ -60,7 +60,7 @@ processResources {
             "mod_contributors"          : contributorsArray,
             "mod_license"               : (project.findProperty("mod_license") ?: "").toString(),
             "mod_discord_url"           : (project.findProperty("mod_discord_url") ?: "").toString(),
-            "mod_git_url"               : (project.findProperty("mod_git_url") ?: "").toString(),
+            "mod_git_url"              : (project.findProperty("mod_git_url") ?: "").toString(),
             "mod_issues_url"            : (project.findProperty("mod_issues_url") ?: "").toString(),
             "mod_page_url"              : (project.findProperty("mod_page_url") ?: "").toString(),
             "minecraft_min_version"     : (project.findProperty("minecraft_min_version") ?: "").toString(),
