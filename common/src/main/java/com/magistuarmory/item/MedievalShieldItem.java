@@ -1,6 +1,6 @@
 package com.magistuarmory.item;
 
-// import com.magistuarmory.client.render.ModRender;
+import com.magistuarmory.client.render.ModRender;
 // import com.magistuarmory.client.render.tileentity.HeraldryItemStackRenderer;
 import com.magistuarmory.util.CombatHelper;
 import com.magistuarmory.util.ModDamageSources;
@@ -128,9 +128,10 @@ public class MedievalShieldItem extends ShieldItem implements IHasModelProperty
 	
 	public void loadModel(EntityRendererProvider.Context context) 
 	{
-		// Rendering disabled for 1.21.4
-		// if (this.is3d)
-		//	this.renderer.loadModel(context);
+		if (this.is3d && this.renderer != null)
+		{
+			// Currently renderer object is placeholder; if implemented it should load model here
+		}
 	}
 	
 	public Object getRenderer()

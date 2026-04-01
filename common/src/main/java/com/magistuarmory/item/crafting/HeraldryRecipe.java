@@ -1,48 +1,96 @@
 // Heraldry recipe implementation for 1.21.4
 package com.magistuarmory.item.crafting;
 
+import com.magistuarmory.EpicKnights;
 import com.magistuarmory.item.MedievalShieldItem;
+import com.magistuarmory.item.armor.ISurcoat;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeInput;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeBookCategory;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
+import org.jetbrains.annotations.NotNull;
 
 public class HeraldryRecipe implements Recipe<RecipeInput> {
     @Override
     public boolean matches(RecipeInput input, Level level) {
-        if (input.size() < 2) return false;
-        
-        ItemStack shieldStack = input.getItem(0);
-        ItemStack dyeStack = input.getItem(1);
-        
-        if (shieldStack.isEmpty() || dyeStack.isEmpty()) return false;
-        
-        // Check if first item is a shield
-        if (!(shieldStack.getItem() instanceof MedievalShieldItem)) return false;
-        
-        // Check if second item is a dye
-        return dyeStack.getItem() instanceof DyeItem;
+        ItemStack targetStack = ItemStack.EMPTY;
+        ItemStack bannerStack = ItemStack.EMPTY;
+
+        for (int i = 0; i < input.size(); i++) {
+            ItemStack stack = input.getItem(i);
+            if (!stack.isEmpty()) {
+                if (stack.getItem() instanceof BannerItem) {
+                    if (!bannerStack.isEmpty()) {
+                        return false;
+                    }
+                    bannerStack = stack;
+                } else {
+                    if (!isApplicableForBanner(stack.getItem())) {
+                        return false;
+                    }
+                    if (!targetStack.isEmpty()) {
+                        return false;
+                    }
+
+                    BannerPatternLayers patterns = stack.get(DataComponents.BANNER_PATTERNS);
+                    if (patterns != null && !patterns.layers().isEmpty()) {
+                        return false;
+                    }
+
+                    targetStack = stack;
+                }
+            }
+        }
+
+        return !targetStack.isEmpty() && !bannerStack.isEmpty();
     }
 
     @Override
     public ItemStack assemble(RecipeInput input, HolderLookup.Provider registries) {
-        ItemStack shieldStack = input.getItem(0).copy();
-        // TODO: Apply heraldry patterns to the shield
-        // For now, just return the shield
-        return shieldStack;
+        ItemStack targetStack = ItemStack.EMPTY;
+        ItemStack bannerStack = ItemStack.EMPTY;
+
+        for (int i = 0; i < input.size(); i++) {
+            ItemStack stack = input.getItem(i);
+            if (!stack.isEmpty()) {
+                if (stack.getItem() instanceof BannerItem) {
+                    bannerStack = stack;
+                } else if (isApplicableForBanner(stack.getItem())) {
+                    targetStack = stack.copy();
+                }
+            }
+        }
+
+        if (!targetStack.isEmpty() && !bannerStack.isEmpty()) {
+            BannerPatternLayers patterns = bannerStack.get(DataComponents.BANNER_PATTERNS);
+            DyeColor color = ((BannerItem) bannerStack.getItem()).getColor();
+
+            if (wornWithSurcoat(targetStack.getItem())) {
+                targetStack.set(DataComponents.CUSTOM_NAME, Component.translatable("magistuarmory.withsurcoat." + color.getName(), targetStack.getHoverName().getString()));
+            } else if (wornWithCaparison(targetStack.getItem())) {
+                targetStack.set(DataComponents.CUSTOM_NAME, Component.translatable("magistuarmory.withcaparison." + color.getName(), targetStack.getHoverName().getString()));
+            }
+
+            if (patterns != null) {
+                targetStack.set(DataComponents.BANNER_PATTERNS, patterns);
+            }
+
+            targetStack.set(DataComponents.BASE_COLOR, color);
+        }
+
+        return targetStack;
     }
 
     @Override
     public RecipeBookCategory recipeBookCategory() {
-        return null;
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     @Override
@@ -71,4 +119,21 @@ public class HeraldryRecipe implements Recipe<RecipeInput> {
             return StreamCodec.unit(new HeraldryRecipe());
         }
     };
+
+    static boolean isPaintableShield(Item item) {
+        return item instanceof MedievalShieldItem && ((MedievalShieldItem) item).isPaintable();
+    }
+
+    static boolean wornWithCaparison(Item item) {
+        // Caparison is a horse armor styling layer, so this should support AnimalArmorItem
+        return item instanceof AnimalArmorItem;
+    }
+
+    static boolean wornWithSurcoat(Item item) {
+        return item instanceof ArmorItem && (EpicKnights.GENERAL_CONFIG.enableSurcoatRecipeForAllArmor || item instanceof ISurcoat);
+    }
+
+    static boolean isApplicableForBanner(Item item) {
+        return isPaintableShield(item) || wornWithCaparison(item) || wornWithSurcoat(item);
+    }
 }

@@ -12,6 +12,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.PlacementInfo;
 
@@ -47,7 +48,7 @@ public class ArmorDecorationRecipe implements Recipe<RecipeInput> {
 
     @Override
     public RecipeBookCategory recipeBookCategory() {
-        return null; // TODO: Find correct RecipeBookCategory constant
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     @Override
